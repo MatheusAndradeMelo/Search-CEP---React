@@ -11,7 +11,8 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.div`
-  font-size: 85px;
+  font-size: 65px;
+  text-align: center;
   /* color: #fff; */
   color: ${(props) => props.theme.fontColor};
   animation: flipTitle 2s;
