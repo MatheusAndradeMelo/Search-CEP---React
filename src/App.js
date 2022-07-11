@@ -1,62 +1,86 @@
-import { FiSearch } from 'react-icons/fi';
-import './styles.css'
-import { useState } from 'react'
+import { FiSearch } from "react-icons/fi";
+import {
+  Container,
+  ContainerInput,
+  ButtonSearch,
+  Title,
+  ThemeText,
+  Main,
+} from "./styles.js";
+import { useState } from "react";
+import { GlobalStyles } from "./GlobalStyles";
+import { lightTheme, darkTheme } from "./themes";
+import swel from "sweetalert2";
 
-import api from './services/api';
+import api from "./services/api";
+import { ThemeProvider } from "styled-components";
+import Switch from '@mui/material/Switch';
 
 function App() {
+  const [input, setInput] = useState("");
+  const [cep, setCep] = useState({});
+  const [theme, setTheme] = useState("light");
 
-  const [input, setInput] = useState('')
-  const [cep, setCep] = useState({})
+  const themeToggler = () => {
+    theme === "light" ? setTheme("dark") : setTheme("light");
+  };
 
-  async function handleSearch(){
+  async function handleSearch() {
     //cep teste : 01310930/json/
-    if(input === '') {
-      alert("Preencha um cep!")
+    if (input === "") {
+      swel.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Digite um cep!",
+      });
       return;
     }
 
     try {
-      const response = await api.get(`${input}/json`)
+      const response = await api.get(`${input}/json`);
       setCep(response.data);
       setInput("");
-
-    }catch {
-      alert("Ops erro ao buscar")
-      setInput("")
+    } catch {
+      alert("Ops erro ao buscar");
+      setInput("");
     }
-
   }
 
   return (
-    <div className="container">
-      <h1 className="title">Buscador de CEP</h1>
+    <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
+      <GlobalStyles />
+      <Container>
+        <ThemeText>Alterar tema</ThemeText>
+        <Switch color="primary" onClick={() => themeToggler()}></Switch>
+        <Title>Buscador de CEP</Title>
 
-      <div className="containerInput">
-          <input 
-          type="text" 
-          placeholder="Digite seu cep..."
-          value={input}
-          onChange={(event) => setInput(event.target.value) }
+        <ContainerInput>
+          <input
+            type="text"
+            placeholder="Digite seu cep..."
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
           />
 
-          <button className="buttonSearch" onClick={handleSearch}>
-              <FiSearch size={25} color="#fff"/>
-          </button>
-      </div>
+          <ButtonSearch onClick={handleSearch}>
+            <FiSearch size={25} color="#A9A9A9" />
+          </ButtonSearch>
+        </ContainerInput>
 
-      {Object.keys(cep).length > 0 && (
-        <main className="main">
-          <h2>CEP: {cep.cep}</h2>
+        {Object.keys(cep).length > 0 && (
+          <Main>
+            <h2>CEP: {cep.cep}</h2>
 
-          <span>{cep.logradouro}</span>
-          <span>Complemento: {cep.complemento}</span>
-          <span>Bairro: {cep.bairro}</span>
-          <span>Cidade/Estado: {cep.localidade} - {cep.uf}</span>
-        </main>
-      )}
-
-    </div>
+            <span>{cep.logradouro}</span>
+            <span>Complemento: {cep.complemento}</span>
+            <span>Bairro: {cep.bairro}</span>
+            <span>
+              Cidade/Estado: {cep.localidade} - {cep.uf}
+            </span>
+          </Main>
+        )}
+      </Container>
+    </ThemeProvider>
   );
 }
 
